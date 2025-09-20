@@ -1,0 +1,81 @@
+:root {
+    --color-fondo: white;
+    --color1: #667eea;
+    --color2: #667eea49;
+    --color3: #4b62c9;
+    --text-color: #333;
+    --light-text: #767676;
+    --gris-claro: rgb(246, 246, 246);
+    --gris-medio: #e5e7eb;
+    --shadow: 1px 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+
+    /* Tipografía */
+    --tipografy1: 'Poppins', sans-serif;
+    --tipografy2: 'Open Sans';
+}
+
+[data-theme="dark"] {
+    --color-fondo: #333;
+    --text-color: #fff;
+    --light-text: #ccc;
+    --gris-claro: #333;
+    --gris-medio: #444;
+    --shadow: 1px 4px 6px rgba(255, 255, 255, 0.1);
+}
+
+/* Reset y configuración base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    scroll-behavior: smooth;
+}
+
+body {
+    color: var(--text-color);
+    background-color: var(--color-fondo);
+}
+
+
+/* reset style button */
+button {
+    border: none;
+    cursor: pointer;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    transition: var(--transition);
+}
+
+/* Clase para centrar elementos hijos al centro */
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 0px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color3);
+}
