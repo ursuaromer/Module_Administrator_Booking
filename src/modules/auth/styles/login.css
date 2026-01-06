@@ -1,0 +1,151 @@
+/* Contenedor principal */
+.login_page {
+    height: 100%;
+    display: flex;
+}
+
+/* Contenido principal */
+.login_page .login_seccion {
+    max-width: 400px;
+    width: 100%;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    box-shadow: 0 0 10px var(--tertiary);
+
+    /* Header del admin */
+    .admin_header {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--primary);
+        .admin_icon {
+            font-size: 2rem;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+    }
+}
+
+
+/* Formulario */
+.login_page .login-form-container {
+
+    h3 {
+        color: var(--text-color);
+        margin-bottom: 1rem;
+        font-size: 1.6rem;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        .form_group {
+            position: relative;
+
+            label {
+                color: var(--text-light);
+                font-size: 1.2rem;
+                font-weight: 500;
+            }
+
+            input {
+                padding: 10px 45px 10px 10px;
+                width: 100%;
+            }
+
+            .icon {
+                position: absolute;
+                right: 15px;
+                top: 33px;
+                font-size: 1.5rem;
+                color: #999;
+            }
+            .icon_password {
+                top: 30px;
+                right: 10px;
+                /* border: red solid 1px; */
+                font-size: 2.2rem;
+                padding: .2rem;
+                cursor: pointer;
+                transition: .3s linear;
+                &:hover {
+                    background-color: var(--gray-medium);
+                    border-radius: 5px;
+                }
+            }
+        }
+
+        /* Enlace de contraseña olvidada */
+        .forgot-password {
+            text-align: center;
+
+            .forgot-link {
+                color: var(--primary);
+                text-decoration: none;
+                font-size: 1.1rem;
+                transition: color 0.3s ease;
+
+                &:hover {
+                    color: #764ba2;
+                }
+            }
+        }
+
+        /* Botón de login */
+        .login-button {
+            width: 100%;
+            padding: 10px;
+            background: var(--primary);
+            color: white;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 500;
+
+            &:hover {
+                box-shadow: var(--shadow);
+                background-color: var(--primary-hover);
+            }
+
+            &:active {
+                transform: translateY(0);
+            }
+        }
+
+    }
+}
+
+/* Footer */
+.login_page .footer_text {
+    text-align: center;
+    color: var(--text-light);
+    font-size: .9rem;
+    line-height: 1.4;
+}
+
+/* Contenido de circulos animados */
+.login_page .animated_background {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    .center {
+        position: absolute;
+        background-color: var(--color-bg);
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--tertiary-color), inset 0 0 2px var(--tertiary-color);
+    }
+}

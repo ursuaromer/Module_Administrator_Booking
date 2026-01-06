@@ -1,0 +1,36 @@
+:root {
+  /* Brand */
+  --primary: #667eea;
+  --primary-hover: #5169d7;
+  --tertiary: #d7deff;
+  --accent: #ff6b6b;
+
+  /* Neutral */
+  --color-bg: #ffffff;
+  --gray-light: #f8f9fa;
+  --gray-medium: #e5e7eb;
+
+  /* Text */
+  --text: #333;
+  --text-light: #767676;
+
+  /* Semantic */
+  --color-success: #28a745;
+  --color-error: #ef4444;
+  --color-warning: #ffc107;
+  --color-info: #17a2b8;
+
+  /* Typography */
+  --font-primary: 'Poppins', sans-serif;
+  --font-secondary: 'Open Sans';
+}
+
+
+[data-theme="dark"] {
+    --color-bg: #333;
+    --text-color: #fff;
+    --light-text: #ccc;
+    --gris-claro: #333;
+    --gris-medio: #444;
+    --shadow: 1px 4px 6px rgba(255, 255, 255, 0.1);
+}

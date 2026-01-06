@@ -1,0 +1,252 @@
+.app_admin {
+    display: flex;
+    height: 100%;
+    /* Animación de entrada desde la derecha */
+    animation: slideInFromRight 0.4s linear;
+
+    /* Sidebar Menu Lateral */
+    .sidebar {
+        width: 220px;
+        height: 100%;
+        padding: 2rem 1rem;
+        display: flex;
+        flex-direction: column;
+        background: var(--gray-light);
+        border-right: 1px solid var(--gray-medium);
+        /* Transición suave para el ancho */
+        transition: width 0.3s ease;
+
+        /* Header */
+        .brand_header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: .75rem;
+
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: .5rem;
+                font-weight: 700;
+                color: var(--primary);
+
+                .brand_mark {
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 6px;
+                    background: var(--primary);
+                }
+
+                span {
+                    font-size: 1.3rem;
+                }
+            }
+        }
+
+        .collapse_btn {
+            font-size: 2.6rem;
+            border-radius: 5px;
+            padding: .4rem;
+            cursor: pointer;
+            transition: .3s linear;
+
+            &:hover {
+                background-color: var(--tertiary);
+                color: var(--primary);
+            }
+        }
+
+        /* Menu */
+        .menu_container {
+            flex: 1;
+        }
+
+        .menu_section {
+            padding: .75rem 0;
+            padding-bottom: .25rem;
+            border-top: var(--gray-medium) 1px solid;
+        }
+
+        .menu_heading {
+            font-size: .8rem;
+            letter-spacing: .08em;
+            color: var(--text-light);
+            margin: .5rem 0;
+        }
+
+        .menu_list {
+            display: flex;
+            flex-direction: column;
+            gap: .1rem;
+        }
+
+        .menu_item {
+            justify-content: flex-start;
+            font-size: 1.2rem;
+            font-weight: 500;
+            gap: .6rem;
+            padding: .7rem .6rem;
+            border-radius: 6px;
+            color: var(--text);
+            background: transparent;
+
+            &:hover {
+                /* color: var(--primary); */
+                background-color: var(--tertiary);
+            }
+        }
+
+        .menu_item.active {
+            background: var(--tertiary);
+            color: var(--primary);
+            /* box-shadow: 0 2px 4px var(--tertiary); */
+            font-weight: 600;
+            /* border: 1px solid var(--primary); */
+        }
+
+        .earn_badge {
+            margin-left: auto;
+            background: #dcfce7;
+            color: #166534;
+            font-size: .65rem;
+            padding: .2rem .4rem;
+            border-radius: 999px;
+        }
+
+        /* Footer */
+        .footer_section {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: .1rem;
+
+            .pro_toggle {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: .5rem .6rem;
+
+                .switch {
+                    position: relative;
+                    display: inline-block;
+                    width: 34px;
+                    height: 20px;
+
+                    input {
+                        opacity: 0;
+                        width: 0;
+                        height: 0;
+                    }
+
+                    .slider {
+                        position: absolute;
+                        cursor: pointer;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: var(--gray-medium);
+                        border-radius: 20px;
+                        transition: .2s;
+                    }
+
+                    .slider::before {
+                        content: "";
+                        position: absolute;
+                        height: 14px;
+                        width: 14px;
+                        left: 3px;
+                        top: 3px;
+                        background: white;
+                        border-radius: 50%;
+                        transition: .2s;
+                    }
+                }
+
+                .switch input:checked+.slider {
+                    background: var(--primary);
+                }
+
+                .switch input:checked+.slider::before {
+                    transform: translateX(14px);
+                }
+            }
+        }
+
+        .logout_btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            padding: .7rem;
+            border-radius: 6px;
+            background: rgb(255, 126, 126);
+            color: white;
+            margin-top: 1rem;
+
+            &:hover {
+                background: rgb(227, 97, 97);
+            }
+
+            .logout_text {
+                font-size: 1.2rem;
+                font-weight: 600;
+            }
+        }
+
+        /* Estilos para sidebar colapsado */
+        &.collapsed {
+            width: 55px;
+            transition: width 0.3s ease;
+
+            .brand_header {
+                justify-content: center;
+
+                .collapse-btn {
+                    transform: rotate(180deg);
+                }
+            }
+
+            .menu_item {
+                justify-content: center;
+
+                span {
+                    display: none;
+                }
+            }
+            .collapse_btn {
+                transform: rotate(180deg);
+            }
+        }        
+    }
+
+    /* Seccion de renders */
+    .main {
+        background-color: var(--color-bg);
+        flex: 1;
+        padding: .7rem;
+        overflow-y: auto;
+    }
+
+    .placeholder {
+        background: #fff;
+        border: 1px solid var(--gray-medium);
+        border-radius: 12px;
+        padding: 1rem;
+        color: var(--text);
+        box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    }
+}
+
+/* Keyframes para la animación de entrada desde la derecha */
+@keyframes slideInFromRight {
+    0% {
+        transform: translateX(50%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
