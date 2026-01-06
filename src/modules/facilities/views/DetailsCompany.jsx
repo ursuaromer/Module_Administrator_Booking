@@ -1,19 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useCompanyDetails } from '../hooks/useCompanyDetails';
 import '../styles/detailFaciliti.css';
-import { ArrowLeft, MapPin, Phone, Globe, Mail, Building2, Calendar, Users, Plus } from 'lucide-react';
+import { ArrowLeft, MapPin, Phone, Globe, Building2, Calendar, Users } from 'lucide-react';
 import Button from '../../../shared/components/Buttons'
 
-const DetailsCompany = ({ handleViewChange }) => {
-    const [companyId, setCompanyId] = useState(null);
-
-    useEffect(() => {
-        // Obtener el ID de la compañía desde localStorage
-        const storedCompanyId = localStorage.getItem('selectedCompanyId');
-        if (storedCompanyId) {
-            setCompanyId(storedCompanyId);
-        }
-    }, []);
+const DetailsCompany = () => {
+    const navigate = useNavigate();
+    const { companyId } = useParams();
 
     const {
         companyDetails,
@@ -40,7 +34,7 @@ const DetailsCompany = ({ handleViewChange }) => {
             <div className="detail_company">
                 <div className="error-container">
                     <p className="error-message">Error: {error}</p>
-                    <button className="btn-back" onClick={() => handleViewChange('listCompany')}>
+                    <button className="btn-back" onClick={() => navigate('/dashboard/companys')}>
                         <ArrowLeft size={18} />
                         Regresar
                     </button>
@@ -53,7 +47,7 @@ const DetailsCompany = ({ handleViewChange }) => {
         return (
             <div className="detail_company">
                 <p>No se encontraron detalles de la compañía</p>
-                <button className="btn-back" onClick={() => handleViewChange('listCompany')}>
+                <button className="btn-back" onClick={() => navigate('/dashboard/companys')}>
                     <ArrowLeft size={18} />
                     Regresar
                 </button>
@@ -65,7 +59,7 @@ const DetailsCompany = ({ handleViewChange }) => {
         <div className="detail_company">
             {/* Encabezado */}
             <section className="detail-header">
-                <button className="btn-back" onClick={() => handleViewChange('listCompany')}>
+                <button className="btn-back" onClick={() => navigate('/dashboard/companys')}>
                     <ArrowLeft size={18} />
                     Regresar
                 </button>
@@ -192,13 +186,14 @@ const DetailsCompany = ({ handleViewChange }) => {
             <section className="detail_section">
                 <div className="section-title">
                     <h3><Users size={18} />Sucursales ({companyDetails.subsidiaries?.length || 0})</h3>
-                    <div style={{display: 'flex', gap: 12}}>
+                    <div style={{ display: 'flex', gap: 12 }}>
 
                         <Button
                             text='Nueva Sucursal'
                             // Icon={Plus}
                             variant='primary'
                             size='md'
+                            onClick={() => navigate(`/dashboard/companys/${companyId}/register-subsidiary`)}
                         />
                         {/* <Button
                             text='Nueva Sucursal'

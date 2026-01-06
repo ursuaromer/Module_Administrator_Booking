@@ -1,13 +1,13 @@
 /* ViewFaciliti - Gestión de Instalaciones Deportivas - Clean Theme */
 
-.view-faciliti {
+.view-company {
     animation: slideInY .3s linear;
     display: flex;
     flex-direction: column;
     gap: .8rem;
 
     /* Header Section - Clean Design */
-    .faciliti-header {
+    .company-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -21,6 +21,7 @@
                 font-size: 1.9rem;
                 font-weight: 700;
                 color: var(--primary);
+                margin-bottom: .3rem;
             }
 
             p {
@@ -48,7 +49,7 @@
 
 
 /* Statistics Cards - Clean Design */
-.view-faciliti .facilities-stats {
+.view-company .facilities-stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
@@ -96,7 +97,7 @@
 }
 
 /* Table Container - Clean Design */
-.view-faciliti .facilities-table-container {
+.view-company .facilities-table-container {
     background: var(--color-bg);
 
     .table-header {
@@ -155,7 +156,7 @@
 }
 
 /* Table Styles */
-.view-faciliti {
+.view-company {
 
     table {
         margin-top: 1rem;
@@ -189,11 +190,11 @@
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-    .view-faciliti {
+    .view-company {
         padding: 1rem;
     }
 
-    .faciliti-header {
+    .company-header {
         flex-direction: column;
         gap: 1rem;
         text-align: left;

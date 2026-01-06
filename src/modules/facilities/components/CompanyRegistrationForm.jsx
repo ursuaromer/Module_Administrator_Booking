@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
 import { useCompanyForm } from '../hooks/useCompanyForm';
 import { useCatalogs } from '../../../shared/hooks/useCatalogs';
-import CompanySearchSelect from './CompanySearchSelect';
 import { InputField, SelectField, TextAreaField, CheckboxField, FormSection, FormRow, SubmitButton, CancelButton, FormActions, ErrorSummary } from './FormComponents';
-import '../styles/CompanySearchSelect.css';
 
 const CompanyRegistrationForm = ({ onSubmit, onCancel, initialData = null, mode = 'auto', parentCompany = null, onBelongsToCompanyChange }) => {
     const {
@@ -114,18 +112,6 @@ const CompanyRegistrationForm = ({ onSubmit, onCancel, initialData = null, mode 
                                         onBelongsToCompanyChange(Boolean(e?.target?.checked));
                                     }
                                 }}
-                            />
-                        )}
-                        {mode !== 'subsidiary' && formData.belongs_to_company && (
-                            <CompanySearchSelect
-                                label="Compañía Padre"
-                                name="parent_company_id"
-                                value={formData.parent_company_id}
-                                onChange={handleChange}
-                                onBlur={handleBlur}
-                                error={errors.parent_company_id}
-                                placeholder="Buscar compañía..."
-                                required
                             />
                         )}
                     </FormRow>

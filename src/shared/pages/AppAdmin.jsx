@@ -1,63 +1,81 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import '../styles/appAdmin.css'
-import { Home, CreditCard, ArrowLeftRight, FileText, Building2, Users2, Lock, Gift, Cog, HelpCircle, LogOut } from 'lucide-react';
+import { Home, CreditCard, ArrowLeftRight, FileText, Building2, Users2, Gift, Cog, HelpCircle, LogOut } from 'lucide-react';
 import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
-import { useNavigate } from 'react-router-dom';
-
-import ViewDash from '../../modules/dashborad/Views/ViewDash';
-import viewsCompany from '../../modules/facilities/views/ViewsCompany';
-import ViewUsers from '../../modules/users/views/ViewUsers';
-import ViewStatistics from '../../modules/stadistics/views/ViewEstadistic';
-import ViewReports from '../../modules/reports/views/ViewReporte';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const AppAdmin = () => {
-    const [activeMenu, setActiveMenu] = useState(() => {
-        return localStorage.getItem('activeMenu') || 'dashboard';
-    });
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [proMode, setProMode] = useState(false);
     const navigate = useNavigate();
-
-    const handleClick = (sectionId) => {
-        setActiveMenu(sectionId);
-        localStorage.setItem('activeMenu', sectionId);
-    };
+    const location = useLocation();
 
     const handleLogout = () => {
-        setActiveMenu('dashboard');
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
         navigate('/');
     };
 
     const toggleSidebar = () => setIsCollapsed(!isCollapsed);
 
+    const breadcrumbItems = useMemo(() => {
+        const pathname = location.pathname || '';
+        const clean = pathname.replace(/\/+$/, '');
+        const segments = clean.split('/').filter(Boolean);
+
+        const labels = {
+            dashboard: 'Dashboard',
+            companys: 'Compañias',
+            register: 'Registrar',
+            users: 'Usuarios',
+            statistics: 'Estadistica',
+            reports: 'Reportes',
+            payment: 'Payment',
+            transaction: 'Transaction',
+            earn: 'Earn',
+        };
+
+        const items = [];
+        let acc = '';
+        segments.forEach((seg, idx) => {
+            acc += `/${seg}`;
+
+            if (seg === 'dashboard') {
+                items.push({ to: '/dashboard', label: labels.dashboard });
+                return;
+            }
+
+            if (segments[idx - 1] === 'companys' && seg !== 'register') {
+                items.push({ to: acc, label: `Empresa ${seg}` });
+                return;
+            }
+
+            items.push({ to: acc, label: labels[seg] || seg });
+        });
+
+        return items;
+    }, [location.pathname]);
+
     const menuGroups = [
         {
             title: 'GENERAL',
             items: [
-                { id: 'dashboard', label: 'Dashboard', icon: Home },
-                { id: 'companys', label: 'Compañias', icon: Building2 },
-                { id: 'users', label: 'Usuarios', icon: Users2 },
-                { id: 'payment', label: 'Payment', icon: CreditCard },
-                { id: 'transaction', label: 'Transaction', icon: ArrowLeftRight },
+                { to: '/dashboard', label: 'Dashboard', icon: Home },
+                { to: '/dashboard/companys', label: 'Compañias', icon: Building2 },
+                { to: '/dashboard/users', label: 'Usuarios', icon: Users2 },
+                { to: '/dashboard/payment', label: 'Payment', icon: CreditCard },
+                { to: '/dashboard/transaction', label: 'Transaction', icon: ArrowLeftRight },
             ],
         },
         {
             title: 'SUPPORT',
             items: [
-                { id: 'reports', label: 'Reportes', icon: FileText },
-                { id: 'statistics', label: 'Estadistica', icon: FileText },
-                { id: 'earn', label: 'Earn', icon: Gift, badge: '€ 150' },
+                { to: '/dashboard/reports', label: 'Reportes', icon: FileText },
+                { to: '/dashboard/statistics', label: 'Estadistica', icon: FileText },
+                { to: '/dashboard/earn', label: 'Earn', icon: Gift, badge: '€ 150' },
             ],
         },
     ];
-
-    const views = {
-        dashboard: ViewDash,
-        companys: viewsCompany,
-        users: ViewUsers,
-        statistics: ViewStatistics,
-        reports: ViewReports,
-    };
 
     return (
         <div className='app_admin'>
@@ -78,13 +96,17 @@ const AppAdmin = () => {
                             <nav className='menu_list'>
                                 {group.items.map((item) => {
                                     const Icon = item.icon;
-                                    const isActive = activeMenu === item.id;
                                     return (
-                                        <button key={item.id} onClick={() => handleClick(item.id)} className={`menu_item ${isActive ? 'active' : ''}`}>
+                                        <NavLink
+                                            key={item.to}
+                                            to={item.to}
+                                            className={({ isActive }) => `menu_item ${isActive ? 'active' : ''}`}
+                                            end={item.to === '/dashboard'}
+                                        >
                                             <Icon size={16} strokeWidth={2.3} />
                                             {!isCollapsed && <span>{item.label}</span>}
                                             {!isCollapsed && item.badge && <span className='earn_badge'>{item.badge}</span>}
-                                        </button>
+                                        </NavLink>
                                     );
                                 })}
                             </nav>
@@ -121,12 +143,19 @@ const AppAdmin = () => {
             </aside>
 
             <main className='main'>
-                {(() => {
-                    const Active = views[activeMenu];
-                    if (Active) return <Active />;
-                    const current = menuGroups.flatMap(g => g.items).find(i => i.id === activeMenu);
-                    return <div className='placeholder'><h2>{current?.label || 'Sección'}</h2><p>Próximamente</p></div>;
-                })()}
+                <div className="breadcrumbs">
+                    {breadcrumbItems
+                        .filter(item => item.label)
+                        .map((item, idx, arr) => (
+                            <span key={item.to}>
+                                <NavLink to={item.to} className="breadcrumb_link">
+                                    {item.label}
+                                </NavLink>
+                                {idx < arr.length - 1 ? <span className="breadcrumb_sep">/</span> : null}
+                            </span>
+                        ))}
+                </div>
+                <Outlet />
             </main>
         </div>
     )

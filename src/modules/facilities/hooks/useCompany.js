@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import companyService from '../services/companyService';
 import toast from 'react-hot-toast';
 
@@ -6,7 +7,8 @@ import toast from 'react-hot-toast';
  * Hook para el manejo del estado de compañías
  * Proporciona acceso centralizado a la lista de compañías y funciones CRUD
  */
-export const useCompany = ({ handleViewChange, autoLoad = true } = {}) => {
+export const useCompany = ({ autoLoad = true } = {}) => {
+    const navigate = useNavigate();
     const [companies, setCompanies] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -90,19 +92,15 @@ export const useCompany = ({ handleViewChange, autoLoad = true } = {}) => {
     const handleStatusFilterChange = useCallback((e) => setStatusFilter(e.target.value), []);
 
     const handleChangeRegister = useCallback(() => {
-        if (handleViewChange) handleViewChange('register');
+        navigate('/dashboard/companys/register');
         toast.success('Registrar Nueva Empresa');
-    }, [handleViewChange]);
+    }, [navigate]);
 
     const handleView = useCallback((company) => {
-        if (handleViewChange) {
-            // Guardar el ID de la compañía en localStorage para usarlo en la vista de detalles
-            // El DTO devuelve 'id' en lugar de 'company_id'
-            const companyId = company.id || company.company_id;
-            localStorage.setItem('selectedCompanyId', companyId);
-            handleViewChange('detail');
-        }
-    }, [handleViewChange]);
+        const companyId = company.id || company.company_id;
+        if (!companyId) return;
+        navigate(`/dashboard/companys/${companyId}`);
+    }, [navigate]);
 
     const handleEdit = useCallback((company) => {
         toast.success(`Editar: ${company?.name || ''}`);

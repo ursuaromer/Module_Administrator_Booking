@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useCompany } from '../hooks/useCompany';
-import '../styles/facilities.css';
-import { Plus, Eye, Edit, Trash2, MapPin, Clock, Users, RefreshCw } from 'lucide-react';
+import '../styles/companys.css';
+import { Plus, Eye, Edit, Trash2, MapPin, Clock, Users } from 'lucide-react';
 import { LuSearch } from "react-icons/lu";
 
-const ListCompany = ({ handleViewChange }) => {
+const ListCompany = () => {
     const {
         loading: isLoadingCompanies,
         error: companiesError,
@@ -26,11 +26,11 @@ const ListCompany = ({ handleViewChange }) => {
         getStatusClass,
         getStatusText,
         formatDate
-    } = useCompany({ handleViewChange });
-
+    } = useCompany();    
+    
     return (
-        <div className="view-faciliti">
-            <div className="faciliti-header">
+        <div className="view-company">
+            <div className="company-header">
                 <div className="header-content">
                     <h1>Gestión de Empresas Deportivas</h1>
                     <p>Administra y controla todas las empresas deportivas registradas</p>
