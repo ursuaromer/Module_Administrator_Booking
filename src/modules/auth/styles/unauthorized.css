@@ -1,0 +1,96 @@
+.unauthorized_page {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-bg);
+    padding: 2rem;
+}
+
+.unauthorized_card {
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    padding: 4rem 3rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    background-color: var(--color-bg);
+    border: 1px solid var(--gray-medium);
+    animation: fadeUp 0.4s ease;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.unauthorized_icon_wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background-color: #fff0f0;
+    margin-bottom: 2rem;
+}
+
+.unauthorized_icon_wrap svg {
+    width: 36px;
+    height: 36px;
+    color: var(--color-error);
+}
+
+.unauthorized_code {
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--color-error);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    letter-spacing: -2px;
+}
+
+.unauthorized_title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+
+.unauthorized_msg {
+    font-size: 1.3rem;
+    color: var(--text-light);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+}
+
+.unauthorized_role_badge {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    border-radius: 20px;
+    background-color: var(--bg-item);
+    color: var(--primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 2.5rem;
+    border: 1px solid var(--tertiary);
+}
+
+.unauthorized_actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.unauthorized_actions button {
+    padding: 0.9rem 1.8rem;
+    font-size: 1.3rem;
+    border-radius: 8px;
+}

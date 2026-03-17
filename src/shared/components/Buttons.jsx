@@ -35,6 +35,7 @@ const Button = ({
     disabled = false,
     loading = false,
     className = '',
+    iconLeft = false
 }) => {
     return (
         <button
@@ -47,9 +48,10 @@ const Button = ({
             `.trim()}
             onClick={onClick}
             disabled={disabled || loading}
+            style={{flexDirection: iconLeft ? 'row-reverse' : 'row'}}
         >
             {/* Ícono opcional */}
-            {Icon && !loading && <Icon className="app-button__icon" />}
+            {Icon && !loading && <Icon size={ size === 'sm' ? 12 : size === 'lg' ? 18 : 15 } className="app-button__icon" />}
 
             {/* Spinner */}
             {loading && <span className="app-button__loader" />}

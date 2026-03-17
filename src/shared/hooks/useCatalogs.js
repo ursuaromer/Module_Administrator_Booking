@@ -15,7 +15,9 @@ export const useCatalogs = () => {
         departments: [],
         districts: [],
         surfaceTypes: [],
-        sportCategories: []
+        sportCategories: [],
+        roles: [],
+        paymentTypes: []
     });
 
     const [loading, setLoading] = useState({
@@ -24,7 +26,9 @@ export const useCatalogs = () => {
         departments: false,
         districts: false,
         surfaceTypes: false,
-        sportCategories: false
+        sportCategories: false,
+        roles: false,
+        paymentTypes: false
     });
 
     const [errors, setErrors] = useState({
@@ -33,7 +37,9 @@ export const useCatalogs = () => {
         departments: null,
         districts: null,
         surfaceTypes: null,
-        sportCategories: null
+        sportCategories: null,
+        roles: null,
+        paymentTypes: null
     });
 
     // ==================== FUNCIONES DE CARGA ====================
@@ -148,6 +154,44 @@ export const useCatalogs = () => {
         }
     }, [catalogs.sportCategories.length]);
 
+    /**
+     * Carga roles
+     */
+    const loadRoles = useCallback(async () => {
+        if (catalogs.roles.length > 0) return; // Ya cargados
+
+        try {
+            setLoading(prev => ({ ...prev, roles: true }));
+            setErrors(prev => ({ ...prev, roles: null }));
+
+            const roles = await CatalogService.getRoles();
+            setCatalogs(prev => ({ ...prev, roles }));
+        } catch (error) {
+            setErrors(prev => ({ ...prev, roles: error.message }));
+        } finally {
+            setLoading(prev => ({ ...prev, roles: false }));
+        }
+    }, [catalogs.roles.length]);
+
+    /**
+     * Carga tipos de pago
+     */
+    const loadPaymentTypes = useCallback(async () => {
+        if (catalogs.paymentTypes.length > 0) return; // Ya cargados
+
+        try {
+            setLoading(prev => ({ ...prev, paymentTypes: true }));
+            setErrors(prev => ({ ...prev, paymentTypes: null }));
+
+            const paymentTypes = await CatalogService.getPaymentTypes();
+            setCatalogs(prev => ({ ...prev, paymentTypes }));
+        } catch (error) {
+            setErrors(prev => ({ ...prev, paymentTypes: error.message }));
+        } finally {
+            setLoading(prev => ({ ...prev, paymentTypes: false }));
+        }
+    }, [catalogs.paymentTypes.length]);
+
     // ==================== FUNCIONES DE UTILIDAD ====================
 
     /**
@@ -192,10 +236,18 @@ export const useCatalogs = () => {
                 setCatalogs(prev => ({ ...prev, sportCategories: [] }));
                 await loadSportCategories();
                 break;
+            case 'roles':
+                setCatalogs(prev => ({ ...prev, roles: [] }));
+                await loadRoles();
+                break;
+            case 'paymentTypes':
+                setCatalogs(prev => ({ ...prev, paymentTypes: [] }));
+                await loadPaymentTypes();
+                break;
             default:
                 console.warn(`Tipo de catálogo no reconocido: ${catalogType}`);
         }
-    }, [loadCountries, loadSportTypes, loadSurfaceTypes, loadSportCategories]);
+    }, [loadCountries, loadSportTypes, loadSurfaceTypes, loadSportCategories, loadRoles, loadPaymentTypes]);
 
     // ==================== RETORNO DEL HOOK ====================
 
@@ -216,6 +268,8 @@ export const useCatalogs = () => {
         loadDistrictsByDepartment,
         loadSurfaceTypes,
         loadSportCategories,
+        loadRoles,
+        loadPaymentTypes,
 
         // Funciones de utilidad
         clearLocationData,
@@ -223,12 +277,17 @@ export const useCatalogs = () => {
         refreshCatalog,
 
         // Getters de conveniencia
-        getCountriesForSelect: () => catalogs.countries,
+        getCountriesForSelect: () => catalogs.countries.map(c => ({
+            value: c.country_id,
+            label: c.country
+        })),
         getSportTypesForSelect: () => catalogs.sportTypes,
         getDepartmentsForSelect: () => catalogs.departments,
         getDistrictsForSelect: () => catalogs.districts,
         getSurfaceTypesForSelect: () => catalogs.surfaceTypes,
         getSportCategoriesForSelect: () => catalogs.sportCategories,
+        getRolesForSelect: () => catalogs.roles,
+        getPaymentTypesForSelect: () => catalogs.paymentTypes,
 
         // Estados de carga específicos
         isLoadingCountries: loading.countries,
@@ -237,6 +296,8 @@ export const useCatalogs = () => {
         isLoadingDistricts: loading.districts,
         isLoadingSurfaceTypes: loading.surfaceTypes,
         isLoadingSportCategories: loading.sportCategories,
+        isLoadingRoles: loading.roles,
+        isLoadingPaymentTypes: loading.paymentTypes,
 
         // Errores específicos
         countriesError: errors.countries,
@@ -244,6 +305,8 @@ export const useCatalogs = () => {
         departmentsError: errors.departments,
         districtsError: errors.districts,
         surfaceTypesError: errors.surfaceTypes,
-        sportCategoriesError: errors.sportCategories
+        sportCategoriesError: errors.sportCategories,
+        rolesError: errors.roles,
+        paymentTypesError: errors.paymentTypes
     };
 };

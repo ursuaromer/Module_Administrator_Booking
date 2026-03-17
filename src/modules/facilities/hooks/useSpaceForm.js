@@ -1,181 +1,159 @@
-import { useState } from 'react';
-import { 
-    validateRequired, 
-    validatePositiveNumber,
-    validatePositiveInteger,
-    validateTime,
-    validateSpaceForm 
-} from '../utils/validation';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useSpace } from './useSpace';
 
-export const useSpaceForm = () => {
-    const [formData, setFormData] = useState({
-        sport_facility_id: '',
-        surface_type_id: '',
-        name: '',
-        capacity: '',
-        dimensions: '',
-        equipment: '',
-        characteristics: '',
-        hourly_rate: '',
-        weekend_rate: '',
-        peak_hour_rate: '',
-        minimum_booking_hour: '1',
-        maximum_booking_hour: '8',
-        booking_buffer_minutes: '15',
-        status: 'Disponible'
-    });
+const mapInitialData = (data) => ({
+    name: data?.name || '',
+    description: data?.description || '',
+    company_id: data?.company_id || '',
+    sucursal_id: data?.sucursal_id || '',
+    surface_type_id: data?.surface?.id || data?.surface_type_id || '',
+    sport_type_id: data?.sport?.id || data?.sport_type_id || '',
+    sport_category_id: data?.category?.id || data?.sport_category_id || '',
+    status_space: data?.status || data?.status_space || 'ACTIVE',
+    capacity: data?.capacity || '',
+    dimensions: data?.dimensions || '',
+    equipment: data?.equipment ? (Array.isArray(data.equipment) ? data.equipment.join(', ') : data.equipment) : '',
+    minimum_booking_minutes: data?.booking_rules?.min_minutes || data?.minimum_booking_minutes || 60,
+    maximum_booking_minutes: data?.booking_rules?.max_minutes || data?.maximum_booking_minutes || 480,
+    booking_buffer_minutes: data?.booking_rules?.buffer_minutes || data?.booking_buffer_minutes || 15
+});
 
+export const useSpaceForm = (initialData = null) => {
+    const [formData, setFormData] = useState(mapInitialData(initialData));
     const [errors, setErrors] = useState({});
-    const [isLoading, setIsLoading] = useState(false);
+    const [touched, setTouched] = useState({});
 
-    const validateField = (name, value) => {
-        const newErrors = { ...errors };
+    const { loading, registerSpace, updateSpace } = useSpace();
 
-        switch (name) {
-            case 'sport_facility_id':
-                newErrors.sport_facility_id = validateRequired(value, 'Instalación deportiva');
-                break;
-
-            case 'surface_type_id':
-                newErrors.surface_type_id = validateRequired(value, 'Tipo de superficie');
-                break;
-
-            case 'name':
-                newErrors.name = validateRequired(value, 'Nombre del espacio');
-                break;
-
-            case 'capacity':
-                newErrors.capacity = validatePositiveInteger(value, 'Capacidad');
-                break;
-
-            case 'dimensions':
-                newErrors.dimensions = validateRequired(value, 'Dimensiones');
-                break;
-
-            case 'hourly_rate':
-                newErrors.hourly_rate = validatePositiveNumber(value, 'Tarifa por hora');
-                break;
-
-            case 'weekend_rate':
-                newErrors.weekend_rate = validatePositiveNumber(value, 'Tarifa de fin de semana');
-                break;
-
-            case 'peak_hour_rate':
-                newErrors.peak_hour_rate = validatePositiveNumber(value, 'Tarifa de hora punta');
-                break;
-
-            case 'minimum_booking_hour':
-                newErrors.minimum_booking_hour = validatePositiveInteger(value, 'Horas mínimas de reserva');
-                break;
-
-            case 'maximum_booking_hour':
-                newErrors.maximum_booking_hour = validatePositiveInteger(value, 'Horas máximas de reserva');
-                if (!newErrors.maximum_booking_hour && parseInt(value) < parseInt(formData.minimum_booking_hour)) {
-                    newErrors.maximum_booking_hour = 'Debe ser mayor a las horas mínimas';
-                }
-                break;
-
-            case 'booking_buffer_minutes':
-                if (!value) {
-                    newErrors.booking_buffer_minutes = 'Los minutos de buffer son requeridos';
-                } else if (isNaN(value) || parseInt(value) < 0) {
-                    newErrors.booking_buffer_minutes = 'Debe ser un número válido (0 o mayor)';
-                } else {
-                    delete newErrors.booking_buffer_minutes;
-                }
-                break;
-
-            case 'equipment':
-                newErrors.equipment = validateRequired(value, 'Equipamiento');
-                break;
-
-            case 'characteristics':
-                newErrors.characteristics = validateRequired(value, 'Características');
-                break;
-
-            default:
-                break;
+    useEffect(() => {
+        if (initialData) {
+            setFormData(mapInitialData(initialData));
         }
+    }, [initialData]);
 
-        // Remove empty errors
-        Object.keys(newErrors).forEach(key => {
-            if (!newErrors[key]) delete newErrors[key];
-        });
+    const validateField = useCallback((name, value) => {
+        const validations = {
+            name: () => {
+                if (!value) return 'Nombre es requerido';
+                if (value.length < 2) return 'Mínimo 2 caracteres';
+                if (value.length > 200) return 'Máximo 200 caracteres';
+                return '';
+            },
+            description: () => (value && value.length > 1000) ? 'Máximo 1000 caracteres' : '',
+            dimensions: () => {
+                if (!value) return 'Dimensiones son requeridas';
+                if (value.length > 100) return 'Máximo 100 caracteres';
+                return '';
+            },
+            equipment: () => (value && value.length > 1000) ? 'Máximo 1000 caracteres' : '',
+            capacity: () => {
+                if (!value && value !== 0) return 'Capacidad es requerida';
+                const n = parseInt(value, 10);
+                return (isNaN(n) || n <= 0) ? 'Debe ser un número positivo' : '';
+            },
+            minimum_booking_minutes: () => {
+                if (!value && value !== 0) return 'Requerido';
+                const n = parseInt(value, 10);
+                return (isNaN(n) || n <= 0) ? 'Debe ser mayor a 0' : '';
+            },
+            maximum_booking_minutes: () => {
+                if (!value && value !== 0) return 'Requerido';
+                const n = parseInt(value, 10);
+                if (isNaN(n) || n <= 0) return 'Debe ser mayor a 0';
+                return n > 1440 ? 'Máximo 24 horas (1440 min)' : '';
+            },
+            booking_buffer_minutes: () => {
+                if (!value && value !== 0) return 'Requerido';
+                const n = parseInt(value, 10);
+                return (isNaN(n) || n < 0) ? 'No puede ser negativo' : '';
+            },
+            sport_type_id: () => !value ? 'Deporte es requerido' : '',
+            surface_type_id: () => !value ? 'Superficie es requerida' : '',
+            sport_category_id: () => !value ? 'Categoría es requerida' : '',
+            status_space: () => !value ? 'Estado es requerido' : ''
+        };
 
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+        return validations[name] ? validations[name]() : '';
+    }, []);
 
-    const handleChange = (name, value) => {
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-        validateField(name, value);
-    };
+    const handleChange = useCallback((e) => {
+        const { name, value, type, checked } = e.target;
+        const val = type === 'checkbox' ? checked : value;
+        
+        setFormData(prev => ({ ...prev, [name]: val }));
+        setTouched(prev => ({ ...prev, [name]: true }));
+        
+        const error = validateField(name, val);
+        setErrors(prev => ({ ...prev, [name]: error }));
+    }, [validateField]);
 
-    const validateForm = () => {
+    const handleBlur = useCallback((e) => {
+        const { name, value } = e.target;
+        setTouched(prev => ({ ...prev, [name]: true }));
+        const error = validateField(name, value);
+        setErrors(prev => ({ ...prev, [name]: error }));
+    }, [validateField]);
+
+    const isValid = useMemo(() => {
         const requiredFields = [
-            'sport_facility_id', 'surface_type_id', 'name', 'capacity', 'dimensions',
-            'equipment', 'characteristics', 'hourly_rate', 'weekend_rate', 'peak_hour_rate',
-            'minimum_booking_hour', 'maximum_booking_hour', 'booking_buffer_minutes'
+            'name', 'dimensions', 'capacity', 'sport_type_id', 
+            'surface_type_id', 'sport_category_id'
         ];
-        let isValid = true;
+        
+        const hasErrors = Object.values(errors).some(error => error);
+        const hasAllRequired = requiredFields.every(field => formData[field]);
+        
+        return !hasErrors && hasAllRequired;
+    }, [errors, formData]);
 
-        requiredFields.forEach(field => {
-            if (!validateField(field, formData[field])) {
-                isValid = false;
-            }
+    const handleSubmit = async (e, overrides = {}) => {
+        if (e) e.preventDefault();
+        
+        const { companyId, sucursalId } = overrides;
+        
+        const newErrors = {};
+        Object.keys(formData).forEach(key => {
+            const error = validateField(key, formData[key]);
+            if (error) newErrors[key] = error;
         });
 
-        return isValid;
-    };
-
-    const resetForm = () => {
-        setFormData({
-            sport_facility_id: '',
-            surface_type_id: '',
-            name: '',
-            capacity: '',
-            dimensions: '',
-            equipment: '',
-            characteristics: '',
-            hourly_rate: '',
-            weekend_rate: '',
-            peak_hour_rate: '',
-            minimum_booking_hour: '1',
-            maximum_booking_hour: '8',
-            booking_buffer_minutes: '15',
-            status: 'Disponible'
-        });
-        setErrors({});
-    };
-
-    const submitForm = async (onSubmit) => {
-        if (!validateForm()) {
-            return false;
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            setTouched(Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
+            return null;
         }
 
-        setIsLoading(true);
+        const submitData = {
+            ...formData,
+            company_id: companyId || formData.company_id,
+            sucursal_id: sucursalId || formData.sucursal_id,
+            capacity: parseInt(formData.capacity, 10),
+            minimum_booking_minutes: parseInt(formData.minimum_booking_minutes, 10),
+            maximum_booking_minutes: parseInt(formData.maximum_booking_minutes, 10),
+            booking_buffer_minutes: parseInt(formData.booking_buffer_minutes, 10),
+            sport_type_id: parseInt(formData.sport_type_id, 10),
+            surface_type_id: parseInt(formData.surface_type_id, 10),
+            sport_category_id: parseInt(formData.sport_category_id, 10)
+        };
+
         try {
-            await onSubmit(formData);
-            resetForm();
-            return true;
-        } catch (error) {
-            console.error('Error al enviar formulario:', error);
-            return false;
-        } finally {
-            setIsLoading(false);
+            const result = initialData 
+                ? await updateSpace(initialData.id || initialData.space_id, submitData)
+                : await registerSpace(submitData);
+            return result;
+        } catch (err) {
+            return null;
         }
     };
 
     return {
         formData,
         errors,
-        isLoading,
+        touched,
+        loading,
+        isValid,
         handleChange,
-        validateForm,
-        resetForm,
-        submitForm
+        handleBlur,
+        handleSubmit
     };
 };

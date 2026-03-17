@@ -20,12 +20,11 @@ axiosInstance.interceptors.response.use(
     response => response,
     error => {
         if (error.response && error.response.status === 401) {
-            // Token inválido o expirado
-            localStorage.removeItem('user');
-            localStorage.removeItem('token');
+            ['token', 'user', 'role', 'roles', 'permissions', 'company_ids', 'tenant_id'].forEach(
+                k => localStorage.removeItem(k)
+            );
 
-            // Redirigir al login (o a la raíz)
-            window.location.href = '/error';
+            window.location.href = '/';
 
             return Promise.reject({
                 ...error,

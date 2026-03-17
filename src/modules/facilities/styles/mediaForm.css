@@ -1,0 +1,105 @@
+.form_upload_media {
+    padding: 1.5rem;
+
+    .upload_form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        flex: 1;
+    }
+
+    .upload_zone {
+        width: 100%;
+        min-height: 220px;
+        border: 2px dashed var(--gray-medium);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        position: relative;
+        background: var(--gray-light);
+
+        &:hover {
+            border-color: var(--primary);
+            background: var(--tertiary);
+
+            .empty_upload_state {
+                color: var(--primary);
+                transform: scale(1.02);
+            }
+
+            .change_file_overlay {
+                opacity: 1;
+            }
+        }
+
+        .empty_upload_state {
+            flex-direction: column;
+            gap: 0.8rem;
+            color: var(--text-light);
+            transition: all 0.3s;
+
+            p {
+                font-weight: 500;
+                color: var(--text);
+                font-size: 1.1rem;
+                font-family: var(--font-secondary);
+            }
+
+            span {
+                font-size: 0.8rem;
+                opacity: 0.9;
+                font-size: 1rem;
+            }
+        }
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain !important;
+        }
+    }
+
+    .change_file_overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        flex-direction: column;
+        gap: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.2s;
+        font-weight: 600;
+    }
+
+    .form_group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        label {
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            resize: none;
+            transition: all 0.2s;
+
+            &:focus {
+                outline: none;
+                box-shadow: 0 0 0 3px var(--primary-light);
+            }
+        }
+    }
+
+    .modal_footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 0.5rem;
+    }
+}

@@ -1,0 +1,378 @@
+/* ============================================================
+   SucursalFullConfigModal — Estilos
+   Prefijo: sfc_  (Sucursal Full Config)
+   ============================================================ */
+
+/* ── Wrapper principal del contenido del modal ───────────────── */
+.sfc_wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 0;
+    width: 100%;
+}
+
+/* ── Barra de pestañas ───────────────────────────────────────── */
+.sfc_tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--gray-medium);
+    background: var(--gray-light);
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+}
+
+.sfc_tabs::-webkit-scrollbar {
+    display: none;
+}
+
+.sfc_tab_btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: .65rem 1.2rem;
+    background: transparent;
+    color: var(--text-light);
+    font-size: .95rem;
+    font-weight: 500;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    margin-bottom: -2px;
+
+    svg {
+        flex-shrink: 0;
+    }
+
+    &:hover {
+        color: var(--primary);
+        background: var(--tertiary);
+    }
+
+    &.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+        background: var(--color-bg);
+        font-weight: 600;
+    }
+}
+
+/* ── Área de contenido ───────────────────────────────────────── */
+.sfc_content {
+    flex: 1;
+}
+
+/* ── Formulario base ─────────────────────────────────────────── */
+.sfc_form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 1.5rem 0.2rem 0.5rem;
+}
+
+/* ── Sección de características ──────────────────────────────── */
+.sfc_features {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* ── Contenedor de etiquetas/tags ────────────────────────────── */
+.sfc_tags_container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0.9rem 1rem;
+    background: var(--gray-light);
+    border: 1px dashed var(--gray-medium);
+    border-radius: 10px;
+    min-height: 52px;
+}
+
+.sfc_empty_tags {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    font-style: italic;
+    align-self: center;
+}
+
+.sfc_tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px 5px 14px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 20px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: transform 0.15s ease;
+
+    &:hover {
+        transform: translateY(-1px);
+    }
+
+    button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        background: rgba(255, 255, 255, 0.22);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        padding: 0;
+        transition: background 0.15s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.45);
+        }
+    }
+}
+
+/* ── Bloque de subida de imagen ──────────────────────────────── */
+.sfc_image_upload {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 0.5rem;
+}
+
+.sfc_image_label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.sfc_image_box {
+    width: 140px;
+    height: 140px;
+    border: 2px dashed var(--gray-medium);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    background: var(--gray-light);
+    transition: border-color 0.2s ease, background 0.2s ease;
+
+    &:hover {
+        border-color: var(--primary);
+        background: var(--tertiary);
+    }
+
+    &.has_image {
+        border-style: solid;
+        border-color: var(--primary);
+        background: transparent;
+    }
+}
+
+.sfc_image_preview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.sfc_image_placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-light);
+    font-size: 0.82rem;
+    text-align: center;
+    padding: 0.5rem;
+
+    svg {
+        color: var(--text-light);
+    }
+}
+
+.sfc_image_hint {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    font-style: italic;
+    max-width: 300px;
+}
+
+.sfc_image_remove {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    color: #ef4444;
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-radius: 6px;
+    cursor: pointer;
+    width: fit-content;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: #fecaca;
+    }
+}
+
+/* ── Banner informativo ──────────────────────────────────────── */
+.sfc_info_banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.65rem 1rem;
+    background: var(--tertiary);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+
+    svg {
+        flex-shrink: 0;
+        color: var(--primary);
+    }
+}
+
+/* ── Pie de tab (info + botones) ─────────────────────────────── */
+.sfc_tab_footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.8rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--gray-medium);
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.sfc_footer_info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-light);
+    font-size: 1rem;
+    font-style: italic;
+
+    svg {
+        color: var(--primary);
+        flex-shrink: 0;
+    }
+}
+
+.sfc_footer_btns {
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* ── Fila de logo en tab Operativo ──────────────────────────── */
+.sfc_logo_row {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+/* Caja de logo más grande que los QR (cuadrada para portrait/landscape) */
+.sfc_logo_row .sfc_image_box {
+    width: 200px;
+    height: 200px;
+    border-radius: 14px;
+}
+
+/* Preview de logo con object-fit cover para que llene el cuadro */
+.sfc_logo_row .sfc_image_preview {
+    object-fit: cover;
+}
+
+/* Descripción al lado de la imagen */
+.sfc_logo_desc {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    justify-content: center;
+    color: var(--text-light);
+    font-size: 0.88rem;
+    max-width: 260px;
+
+    strong {
+        color: var(--text);
+        font-size: 0.95rem;
+    }
+
+    ul {
+        padding-left: 1.1rem;
+        margin: 0;
+        line-height: 1.7;
+    }
+}
+
+/* Prop size="lg" en ImageUploadPreview ──────────────────────── */
+.sfc_image_upload.size_lg .sfc_image_box {
+    width: 200px;
+    height: 200px;
+    border-radius: 14px;
+}
+
+.sfc_image_upload.size_lg .sfc_image_preview {
+    object-fit: cover;
+}
+
+/* ── Estado de carga inicial ─────────────────────────────────── */
+.sfc_loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 4rem 2rem;
+    color: var(--text-light);
+    font-size: 0.95rem;
+}
+
+.sfc_spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--gray-medium);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: sfc_spin 0.7s linear infinite;
+}
+
+@keyframes sfc_spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    .sfc_tab_btn {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.82rem;
+
+        span {
+            display: none;
+        }
+    }
+
+    .sfc_tab_btn.active span {
+        display: inline;
+    }
+
+    .sfc_tab_footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .sfc_footer_btns {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

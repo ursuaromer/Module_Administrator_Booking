@@ -1,8 +1,10 @@
-import React from 'react';
-import { useCompany } from '../hooks/useCompany';
-import '../styles/companys.css';
-import { Plus, Eye, Edit, Trash2, MapPin, Clock, Users } from 'lucide-react';
+import { useCompanyList } from '../hooks/useCompanyList';
+import '../styles/listCompanys.css';
+import { Plus, Eye, Edit, MapPin, Users, Building2, CheckCircle2 } from 'lucide-react';
 import { LuSearch } from "react-icons/lu";
+import { Table, InputField, SelectField } from '../../../shared/components';
+import { truncateText } from '../../../shared/utils/formarText';
+import { Button } from '../../../shared/components/Buttons';
 
 const ListCompany = () => {
     const {
@@ -11,26 +13,30 @@ const ListCompany = () => {
         searchTerm,
         countryFilter,
         statusFilter,
-        uniqueCountries,
-        filteredCompanies,
+        countries,
+        isLoadingCountries,
+        companies,
         totalCompanies,
         activeCompanies,
         inactiveCompanies,
+        pagination,
         handleSearchChange,
         handleCountryFilterChange,
         handleStatusFilterChange,
         handleChangeRegister,
         handleView,
         handleEdit,
-        handleDelete,
         getStatusClass,
         getStatusText,
-        formatDate
-    } = useCompany();    
-    
+        formatDate,
+        handlePageChange,
+    } = useCompanyList();
+
     return (
         <div className="view-company">
-            <div className="company-header">
+
+            {/* Cabecera de la vista */}
+            <section className="company-header">
                 <div className="header-content">
                     <h1>Gestión de Empresas Deportivas</h1>
                     <p>Administra y controla todas las empresas deportivas registradas</p>
@@ -41,150 +47,150 @@ const ListCompany = () => {
                     )}
                 </div>
                 <div className="header-actions">
-                    <button className="btn-register" onClick={handleChangeRegister}>
-                        <Plus size={18} />
-                        Nueva Empresa
-                    </button>
+                    <Button
+                        text='Nueva Empresa'
+                        Icon={Plus}
+                        size='md'
+                        onClick={handleChangeRegister}
+                    />
                 </div>
-            </div>
+            </section>
 
-            <div className="facilities-stats">
-                <div className="stat-card">
-                    <div className="stat-icon">
-                        <MapPin size={24} />
-                    </div>
+            {/* Estadisticas rapidas */}
+            <section className="compnays-stats">
+                <div className="card">
+                    <Building2 size={32} />
                     <div className="stat-info">
                         <h3>{totalCompanies}</h3>
                         <p>Total Empresas</p>
                     </div>
                 </div>
-                <div className="stat-card">
-                    <div className="stat-icon">
-                        <Clock size={24} />
-                    </div>
+                <div className="card">
+                    <CheckCircle2 size={32} />
                     <div className="stat-info">
                         <h3>{activeCompanies}</h3>
                         <p>Empresas Activas</p>
                     </div>
                 </div>
-                <div className="stat-card">
-                    <div className="stat-icon">
-                        <Users size={24} />
-                    </div>
+                <div className="card">
+                    <Users size={32} />
                     <div className="stat-info">
                         <h3>{inactiveCompanies}</h3>
                         <p>Empresas Inactivas</p>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div className="facilities-table-container">
-                <div className="table-header">
-                    <h2>Lista de Empresas</h2>
-                    <div className="table-filters">
-                        <div className="search_box">
-                            <input
-                                className="input_search"
-                                type="text"
-                                placeholder="Buscar empresa deportiva..."
-                                value={searchTerm}
-                                onChange={handleSearchChange}
-                            />
-                            <LuSearch size={16} />
-                        </div>
-                        <select
-                            className="filter-select"
+            {/* Seccion de busqueda y filtro */}
+            <section className="search_filters">
+                <h2>Lista de Empresas</h2>
+                <div className="data-filters">
+                    <div className="search_box">
+                        <InputField
+                            label="Buscar empresa deportiva..."
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            type='text'
+                            placeholder=''
+                            icon={LuSearch}
+                            // iconPosition='left'
+                        />
+                    </div>
+                    <div className="select_box">
+                        <SelectField
+                            label={'Paises'}
                             value={countryFilter}
                             onChange={handleCountryFilterChange}
-                        >
-                            <option value="">Todos los países</option>
-                            {uniqueCountries.map(country => (
-                                <option key={country} value={country}>{country}</option>
-                            ))}
-                        </select>
-                        <select
-                            className="filter-select"
+                            options={countries.map(country => ({
+                                label: country.country,
+                                value: country.country_id,
+                            }))}
+                            showDefaultOption
+                            variant
+                        />
+                    </div>
+                    <div className="select_box">
+                        <SelectField
+                            label={'Estados'}
                             value={statusFilter}
                             onChange={handleStatusFilterChange}
-                        >
-                            <option value="">Todos los estados</option>
-                            <option value="Activo">Activo</option>
-                            <option value="Inactivo">Inactivo</option>
-                        </select>
+                            options={[
+                                { label: 'Activo', value: 'ACTIVE' },
+                                { label: 'Inactivo', value: 'INACTIVE' },
+                            ]}
+                            showDefaultOption
+                            variant
+                        />
                     </div>
                 </div>
+            </section>
 
-                {isLoadingCompanies ? (
-                    <div className="loading-container">
-                        <div className="loading-spinner"></div>
-                        <p>Cargando empresas...</p>
-                    </div>
-                ) : filteredCompanies.length === 0 ? (
-                    <div className="empty-state">
-                        <p>No se encontraron empresas que coincidan con los filtros aplicados.</p>
-                    </div>
-                ) : (
-                    <table className="facilities-table">
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Nombre Empresa</th>
-                                <th>Documento</th>
-                                <th>País</th>
-                                <th>Dirección</th>
-                                <th>Fecha Registro</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredCompanies.map((company) => (
-                                <tr key={company.id}>
-                                    <td>{company.tenant_id}</td>
-                                    <td>{company.name}</td>
-                                    <td>{company.document}</td>
-                                    <td>
-                                        <img src={company.country?.flag || ''} alt="" height={8} style={{ marginRight: 3 }} />
-                                        <span>{company.country?.name || 'N/A'}</span>
-                                    </td>
-                                    <td>{company.address}</td>
-                                    <td>{formatDate(company.created_at)}</td>
-                                    <td>
-                                        <span className={`status ${getStatusClass(company.is_enabled)}`}>
-                                            {getStatusText(company.is_enabled)}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div className="action-buttons">
-                                            <button
-                                                className="btn-action btn-view"
-                                                onClick={() => handleView(company)}
-                                                title="Ver detalles"
-                                            >
-                                                <Eye size={16} />
-                                            </button>
-                                            <button
-                                                className="btn-action btn-edit"
-                                                onClick={() => handleEdit(company)}
-                                                title="Editar"
-                                            >
-                                                <Edit size={16} />
-                                            </button>
-                                            <button
-                                                className="btn-action btn-delete"
-                                                onClick={() => handleDelete(company.id)}
-                                                title="Eliminar"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
+            <section>
+                <Table
+                    data={companies}
+                    loading={isLoadingCompanies}
+                    emptyText="No se encontraron empresas"
+                    keyField="company_id"
+                    pagination={{
+                        total: pagination.total,
+                        page: pagination.page,
+                        limit: pagination.limit,
+                        totalPages: pagination.totalPages,
+                        onPageChange: (p) => handlePageChange(p)
+                    }}
+                    columns={[
+                        {
+                            header: "N°",
+                            cell: (_, row) => {
+                                const currentPage = Number(pagination?.page);
+                                const currentLimit = Number(pagination?.limit);
+                                const rowIndex = companies.findIndex(company => company.company_id === row.company_id);
+                                return <span>{(currentPage - 1) * currentLimit + (rowIndex + 1)}</span>;
+                            }
+                        },
+                        { header: "Código", accessor: "tenant_id" },
+                        { header: "Nombre Empresa", accessor: "name" },
+                        { header: "Documento", accessor: "document" },
+                        {
+                            header: "País", accessor: "country",
+                            cell: (value, row) => (
+                                <>
+                                    <img src={value?.flag || ''} alt="" height={10} style={{ marginRight: 4 }} />
+                                    <span>{value?.name || 'N/A'}</span>
+                                </>
+                            )
+                        },
+                        {
+                            header: "Dirección", accessor: "address",
+                            cell: (value) => (
+                                <span className="cell-with-icon">
+                                    <MapPin size={14} />
+                                    {truncateText(value, 40)}
+                                </span>
+                            )
+                        },
+                        // { header: 'Sucursales', accessor: "aa", cell: (value) => value?.name || "4" },
+                        { header: "Fecha Registro", accessor: "created_at", cell: (v) => formatDate(v) },
+                        {
+                            header: "Estado", accessor: "is_enabled",
+                            cell: (v, row) => (
+                                <span className={`status ${getStatusClass(v)}`}>
+                                    {getStatusText(v)}
+                                </span>
+                            )
+                        },
+                        {
+                            header: "Acciones",
+                            cell: (_, row) => (
+                                <div className="action-buttons">
+                                    <button className='btn-view' onClick={() => handleView(row.company_id)} title="Ver detalles"><Eye size={16} /></button>
+                                    <button className='btn-edit' onClick={() => handleEdit(row.company_id)} title="Editar"><Edit size={16} /></button>
+                                </div>
+                            )
+                        },
+                    ]}
+                />
+            </section>
         </div>
     );
 };

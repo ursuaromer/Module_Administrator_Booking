@@ -32,9 +32,18 @@
 
                 .brand_mark {
                     width: 24px;
-                    height: 24px;
-                    border-radius: 6px;
-                    background: var(--primary);
+                    height: 25px;
+                    padding: .3rem;
+                    border-radius: 4px;
+                    /* background: var(--primary); */
+                    /* border: 1px solid var(--primary); */
+                    box-shadow: 0 0 2px var(--primary);
+                    img {
+                        width: 100%;
+                        height: 100%;
+                        object-fit: cover;
+                        filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(190deg) brightness(100%) contrast(106%)
+                    }
                 }
 
                 span {
@@ -216,44 +225,50 @@
                     display: none;
                 }
             }
+
             .collapse_btn {
                 transform: rotate(180deg);
             }
-        }        
+        }
     }
 
     /* Seccion de renders */
     .main {
-        background-color: var(--color-bg);
+        background-color: var(--gray-light);
+        background-color: var(--color-bg) !important;
         flex: 1;
-        padding: .7rem;
         overflow-y: auto;
     }
 
     .breadcrumbs {
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         gap: .4rem;
-        padding: .25rem .2rem .8rem .2rem;
-        color: var(--text-light);
-        font-size: 1.1rem;
-    }
+        position: sticky;
+        top: 0;
+        height: 25px;
+        padding-left: .7rem;
+        padding-bottom: .2rem;
+        background-color: var(--color-bg);
+        z-index: 1;
 
-    .breadcrumb_link {
-        color: var(--text-light);
-        text-decoration: none;
-        font-weight: 600;
-    }
+        .breadcrumb_link {
+            font-size: 1.1rem;
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
 
-    .breadcrumb_link:hover {
-        color: var(--primary);
-        text-decoration: underline;
-    }
+            &:hover {
+                color: var(--primary);
+                text-decoration: underline;
+            }
 
-    .breadcrumb_sep {
-        margin: 0 .4rem;
-        color: var(--gray-medium);
-        font-weight: 700;
+            .breadcrumb_sep {
+                margin: 0 .4rem;
+                color: var(--gray-medium);
+                font-weight: 700;
+            }
+        }
     }
 
     .placeholder {
@@ -262,7 +277,7 @@
         border-radius: 12px;
         padding: 1rem;
         color: var(--text);
-        box-shadow: 0 2px 8px rgba(0,0,0,.04);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
     }
 }
 

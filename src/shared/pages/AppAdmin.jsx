@@ -1,22 +1,41 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import '../styles/appAdmin.css'
 import { Home, CreditCard, ArrowLeftRight, FileText, Building2, Users2, Gift, Cog, HelpCircle, LogOut } from 'lucide-react';
-import { TbLayoutSidebarLeftCollapse } from "react-icons/tb";
+import { TbLayoutSidebarLeftCollapse, TbCalendarCheck } from "react-icons/tb";
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../modules/auth/context/AuthContext';
+import logo from '../../assets/icons/company.png'
 
 const AppAdmin = () => {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [proMode, setProMode] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const { logout } = useAuth();
+    const lastNonBookingsCollapsedRef = useRef(isCollapsed);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('role');
+        logout();
         navigate('/');
     };
 
     const toggleSidebar = () => setIsCollapsed(!isCollapsed);
+
+    const isBookingsRoute = location.pathname.startsWith('/bookings');
+
+    useEffect(() => {
+        if (!isBookingsRoute) {
+            lastNonBookingsCollapsedRef.current = isCollapsed;
+        }
+    }, [isBookingsRoute, isCollapsed]);
+
+    useEffect(() => {
+        if (isBookingsRoute) {
+            setIsCollapsed(true);
+        } else {
+            setIsCollapsed(lastNonBookingsCollapsedRef.current);
+        }
+    }, [isBookingsRoute]);
 
     const breadcrumbItems = useMemo(() => {
         const pathname = location.pathname || '';
@@ -26,8 +45,14 @@ const AppAdmin = () => {
         const labels = {
             dashboard: 'Dashboard',
             companys: 'Compañias',
+            subsidiary: 'Sucursal',
+            space: 'Espacio',
             register: 'Registrar',
+            edit: 'Editar',
+            'register-subsidiary': 'Nueva Sucursal',
+            'register-space': 'Nuevo Espacio',
             users: 'Usuarios',
+            bookings: 'Reservas',
             statistics: 'Estadistica',
             reports: 'Reportes',
             payment: 'Payment',
@@ -37,21 +62,56 @@ const AppAdmin = () => {
 
         const items = [];
         let acc = '';
-        segments.forEach((seg, idx) => {
+
+        for (let idx = 0; idx < segments.length; idx++) {
+            const seg = segments[idx];
             acc += `/${seg}`;
 
             if (seg === 'dashboard') {
                 items.push({ to: '/dashboard', label: labels.dashboard });
-                return;
+                continue;
             }
 
-            if (segments[idx - 1] === 'companys' && seg !== 'register') {
-                items.push({ to: acc, label: `Empresa ${seg}` });
-                return;
+            // Manejo de la ruta de sucursales (flat route) para que parezca anidada
+            if (seg === 'subsidiary') {
+                // Insertamos "Compañías" antes de la sucursal para mantener la jerarquía lógica
+                items.push({ to: '/companys', label: labels.companys });
+
+                if (segments[idx + 1]) {
+                    const subsidiaryId = segments[idx + 1];
+                    acc += `/${subsidiaryId}`;
+                    items.push({ to: acc, label: `Sucursal ${subsidiaryId}` });
+                    idx++;
+                }
+                continue;
+            }
+
+            // Manejo de la ruta de espacios deportivos
+            if (seg === 'space') {
+                if (segments[idx + 1]) {
+                    const spaceId = segments[idx + 1];
+                    acc += `/${spaceId}`;
+                    items.push({ to: acc, label: `Espacio ${spaceId}` });
+                    idx++;
+                } else {
+                    items.push({ to: acc, label: labels.space });
+                }
+                continue;
+            }
+
+            if (segments[idx - 1] === 'companys') {
+                if (seg === 'register') {
+                    // Caso especial: registro de nueva empresa
+                    items.push({ to: acc, label: labels[seg] });
+                } else {
+                    // Empresa principal individual
+                    items.push({ to: acc, label: `Empresa ${seg}` });
+                }
+                continue;
             }
 
             items.push({ to: acc, label: labels[seg] || seg });
-        });
+        }
 
         return items;
     }, [location.pathname]);
@@ -61,18 +121,19 @@ const AppAdmin = () => {
             title: 'GENERAL',
             items: [
                 { to: '/dashboard', label: 'Dashboard', icon: Home },
-                { to: '/dashboard/companys', label: 'Compañias', icon: Building2 },
-                { to: '/dashboard/users', label: 'Usuarios', icon: Users2 },
-                { to: '/dashboard/payment', label: 'Payment', icon: CreditCard },
-                { to: '/dashboard/transaction', label: 'Transaction', icon: ArrowLeftRight },
+                { to: '/companys', label: 'Compañias', icon: Building2 },
+                { to: '/bookings', label: 'Reservas', icon: TbCalendarCheck },
+                { to: '/users', label: 'Usuarios', icon: Users2 },
+                { to: '/payment', label: 'Payment', icon: CreditCard },
+                { to: '/transaction', label: 'Transaction', icon: ArrowLeftRight },
             ],
         },
         {
             title: 'SUPPORT',
             items: [
-                { to: '/dashboard/reports', label: 'Reportes', icon: FileText },
-                { to: '/dashboard/statistics', label: 'Estadistica', icon: FileText },
-                { to: '/dashboard/earn', label: 'Earn', icon: Gift, badge: '€ 150' },
+                { to: '/reports', label: 'Reportes', icon: FileText },
+                { to: '/statistics', label: 'Estadistica', icon: FileText },
+                { to: '/earn', label: 'Earn', icon: Gift, badge: '€ 150' },
             ],
         },
     ];
@@ -82,7 +143,9 @@ const AppAdmin = () => {
             <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
                 <div className='brand_header'>
                     {!isCollapsed && <div className='brand'>
-                        <div className='brand_mark'></div>
+                        <div className='brand_mark'>
+                            <img src={logo} alt="logo" />
+                        </div>
                         <span>Admin BS</span>
                     </div>
                     }

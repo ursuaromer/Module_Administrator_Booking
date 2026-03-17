@@ -1,30 +1,49 @@
-import { useState, useMemo, useCallback } from 'react';
-import { useCompany } from './useCompany';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useCompanyList } from './useCompanyList';
 import toast from 'react-hot-toast';
+import { handleAxiosError } from '../../../shared/utils/errorHandler';
+
+const mapInitialData = (data) => ({
+    name: data?.name || '',
+    address: data?.address || '',
+    ubigeo_code: data?.ubigeo_code || '',
+    phone_cell: data?.phone_cell || '',
+    phone: data?.phone || '',
+    website: data?.website || '',
+    document: data?.document || '',
+    postal_code: data?.postal_code || '',
+    latitude: data?.latitude ?? '',
+    longitude: data?.longitude ?? '',
+    description: data?.description || '',
+    parking_available: Boolean(data?.parking_available),
+    country_id: data?.country_id || 1,
+    parent_company_id: data?.parent_company_id ?? '',
+    opening_time: data?.opening_time || '',
+    closing_time: data?.closing_time || '',
+    min_price: data?.min_price || '',
+    features: Array.isArray(data?.features) ? data.features.join(', ') : (data?.features || ''),
+    main_image: null
+});
 
 export const useCompanyForm = (initialData = null) => {
-    const [formData, setFormData] = useState({
-        name: initialData?.name || '',
-        address: initialData?.address || '',
-        ubigeo_code: initialData?.ubigeo_code || '',
-        phone_cell: initialData?.phone_cell || '',
-        phone: initialData?.phone || '',
-        website: initialData?.website || '',
-        document: initialData?.document || '',
-        postal_code: initialData?.postal_code || '',
-        latitude: initialData?.latitude || '',
-        longitude: initialData?.longitude || '',
-        description: initialData?.description || '',
-        parking_available: initialData?.parking_available || false,
-        country_id: initialData?.country_id || 1,
-        parent_company_id: initialData?.parent_company_id || '',
-        belongs_to_company: initialData?.belongs_to_company || false
+    const [formData, setFormData] = useState(mapInitialData(initialData));
+    const [previews, setPreviews] = useState({
+        main_image: null
     });
-
     const [errors, setErrors] = useState({});
     const [touched, setTouched] = useState({});
 
-    const { loading, error, success, registerCompany, clearMessages } = useCompany({ autoLoad: false });
+    const { loading, error, success, registerCompany, updateCompany, clearMessages } = useCompanyList({ autoLoad: false });
+    const lastInitialIdRef = useRef(initialData?.company_id ?? initialData?.id ?? null);
+
+    useEffect(() => {
+        const nextId = initialData?.company_id ?? initialData?.id ?? null;
+        if (!initialData || !nextId) return;
+        if (lastInitialIdRef.current === nextId) return;
+        lastInitialIdRef.current = nextId;
+
+        setFormData(mapInitialData(initialData));
+    }, [initialData]);
 
     // Validaciones simplificadas
     const validateField = useCallback((name, value) => {
@@ -88,19 +107,31 @@ export const useCompanyForm = (initialData = null) => {
         const { name, value, type, checked } = e.target;
         const fieldValue = type === 'checkbox' ? checked : value;
 
-        setFormData(prev => {
-            if (name === 'belongs_to_company' && fieldValue === false) {
-                return { ...prev, [name]: fieldValue, parent_company_id: '' };
-            }
-            return { ...prev, [name]: fieldValue };
-        });
+        setFormData(prev => ({ ...prev, [name]: fieldValue }));
         setTouched(prev => ({ ...prev, [name]: true }));
-        
+
         const error = validateField(name, fieldValue);
         setErrors(prev => ({ ...prev, [name]: error }));
-        
+
         if (error || success) clearMessages();
     }, [validateField, success, clearMessages]);
+
+    // Manejar cambios en archivos
+    const handleFileChange = useCallback((e) => {
+        const { name, files } = e.target;
+        if (files && files[0]) {
+            const file = files[0];
+            setFormData(prev => ({ ...prev, [name]: file }));
+            setTouched(prev => ({ ...prev, [name]: true }));
+
+            // Crear preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviews(prev => ({ ...prev, [name]: reader.result }));
+            };
+            reader.readAsDataURL(file);
+        }
+    }, []);
 
     const handleBlur = useCallback((e) => {
         const { name, value, type, checked } = e.target;
@@ -117,19 +148,15 @@ export const useCompanyForm = (initialData = null) => {
     // Validar todos los campos
     const validateAll = useCallback(() => {
         const newErrors = {};
-        
+
         Object.keys(formData).forEach(field => {
             const error = validateField(field, formData[field]);
             if (error) newErrors[field] = error;
         });
 
-        if (formData.belongs_to_company && !formData.parent_company_id) {
-            newErrors.parent_company_id = 'Selecciona una compañía padre';
-        }
-
         setErrors(newErrors);
         setTouched(Object.keys(formData).reduce((acc, field) => ({ ...acc, [field]: true }), {}));
-        
+
         return Object.keys(newErrors).length === 0;
     }, [formData, validateField]);
 
@@ -138,9 +165,8 @@ export const useCompanyForm = (initialData = null) => {
         const hasErrors = Object.values(errors).some(error => error);
         const requiredFields = ['name', 'address', 'ubigeo_code', 'phone_cell', 'phone', 'document'];
         const hasRequiredFields = requiredFields.every(field => formData[field]) && Boolean(formData.country_id);
-        const hasCompanyParent = !formData.belongs_to_company || Boolean(formData.parent_company_id);
-        
-        return !hasErrors && hasRequiredFields && hasCompanyParent;
+
+        return !hasErrors && hasRequiredFields;
     }, [errors, formData]);
 
     // Resetear formulario
@@ -149,12 +175,21 @@ export const useCompanyForm = (initialData = null) => {
             name: '', address: '', ubigeo_code: '', phone_cell: '', phone: '',
             website: '', document: '', postal_code: '', latitude: '', longitude: '',
             description: '', parking_available: false, country_id: 1,
-            parent_company_id: '', belongs_to_company: false
+            parent_company_id: '',
+            opening_time: '', closing_time: '', min_price: '', features: '',
+            main_image: null
+        });
+        setPreviews({
+            main_image: null
         });
         setErrors({});
         setTouched({});
         clearMessages();
     }, [clearMessages]);
+
+    const isSubsidiary = useMemo(() => {
+        return initialData?.parent_company_id !== null && initialData?.parent_company_id !== undefined && initialData?.parent_company_id !== '';
+    }, [initialData]);
 
     // Enviar formulario
     const handleSubmit = useCallback(async () => {
@@ -163,39 +198,67 @@ export const useCompanyForm = (initialData = null) => {
             return { success: false, error: 'Errores en el formulario' };
         }
 
-        const submitData = {
-            country_id: parseInt(formData.country_id) || 0,
-            name: formData.name,
-            address: formData.address,
-            ubigeo_code: formData.ubigeo_code,
-            phone_cell: formData.phone_cell,
-            phone: formData.phone,
-            document: formData.document,
-            website: formData.website?.trim() || undefined,
-            postal_code: formData.postal_code || undefined,
-            latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
-            longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
-            description: formData.description || undefined,
-            parking_available: Boolean(formData.parking_available),
-            parent_company_id: formData.parent_company_id ? parseInt(formData.parent_company_id) : undefined
-        };
+        const companyId = initialData?.company_id ?? initialData?.id;
+        const isEditing = Boolean(companyId);
 
-        // Remover campos vacíos opcionales
-        ['website', 'postal_code', 'description', 'latitude', 'longitude', 'parent_company_id']
-            .forEach(key => {
-                if (!submitData[key]) delete submitData[key];
-            });
+        // Usar FormData para enviar archivos
+        const submitData = new FormData();
 
-        const result = await registerCompany(submitData);
-        if (result?.success) {
-            toast.success(result.message || 'Empresa registrada exitosamente');
-            resetForm();
-            return result;
+        // Agregar campos básicos
+        submitData.append('country_id', parseInt(formData.country_id) || 0);
+        submitData.append('name', formData.name);
+        submitData.append('address', formData.address);
+        submitData.append('ubigeo_code', formData.ubigeo_code);
+        submitData.append('phone_cell', formData.phone_cell);
+        submitData.append('phone', formData.phone);
+        submitData.append('document', formData.document);
+        submitData.append('parking_available', Boolean(formData.parking_available));
+
+        // Campos opcionales
+        if (formData.website?.trim()) submitData.append('website', formData.website.trim());
+        if (formData.postal_code) submitData.append('postal_code', formData.postal_code);
+        if (formData.latitude) submitData.append('latitude', parseFloat(formData.latitude));
+        if (formData.longitude) submitData.append('longitude', parseFloat(formData.longitude));
+        if (formData.description) submitData.append('description', formData.description);
+
+        // Parent Company ID - Solo se envía en creación
+        if (!isEditing && formData.parent_company_id !== null && formData.parent_company_id !== undefined) {
+            const parentId = String(formData.parent_company_id || '').trim();
+            if (parentId) {
+                submitData.append('parent_company_id', parseInt(parentId, 10));
+            }
         }
 
-        toast.error(result?.error?.message || 'Error al registrar empresa');
-        return result || { success: false, error: { message: 'Error al registrar empresa' } };
-    }, [formData, validateAll, registerCompany, resetForm]);
+        // Horarios y precios
+        if (formData.opening_time) submitData.append('opening_time', formData.opening_time);
+        if (formData.closing_time) submitData.append('closing_time', formData.closing_time);
+        if (formData.min_price) submitData.append('min_price', parseFloat(formData.min_price));
+        if (formData.features) submitData.append('features', formData.features);
+
+        // Archivos
+        if (formData.main_image) {
+            submitData.append('main_image', formData.main_image);
+        }
+
+        try {
+            const result = isEditing
+                ? await updateCompany(companyId, submitData)
+                : await registerCompany(submitData);
+
+            // Asegurarse de que result no sea undefined
+            if (result) {
+                toast.success(result.message || (isEditing ? 'Empresa actualizada exitosamente' : 'Empresa registrada exitosamente'));
+            } else {
+                toast.success(isEditing ? 'Empresa actualizada exitosamente' : 'Empresa registrada exitosamente');
+            }
+            resetForm();
+            return { success: true, data: result };
+        } catch (error) {
+            const errorMessage = handleAxiosError(error);
+            toast.error(errorMessage);
+            return { success: false, error: errorMessage };
+        }
+    }, [formData, initialData, validateAll, updateCompany, registerCompany, resetForm, isSubsidiary]);
 
     return {
         formData,
@@ -212,6 +275,8 @@ export const useCompanyForm = (initialData = null) => {
         resetForm,
         clearMessages,
         setFormData,
-        setErrors
+        setErrors,
+        previews,
+        handleFileChange
     };
 };

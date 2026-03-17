@@ -1,0 +1,288 @@
+/* ================================================================
+   BookingCalendar — tabla visual de horarios (horas × días)
+   ================================================================ */
+
+@keyframes slideInY {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.adm-dyn-table-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden; /* IMPORTANTE: No queremos scroll aquí */
+    height: 100%; /* Ocupar todo el espacio disponible */
+
+    /* ── Líneas Guía ────────────────────────────────────────── */
+    .adm-dt-guide-h {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 0.5px;
+        background: var(--primary);
+        z-index: 100;
+        pointer-events: none;
+
+        .adm-dt-guide-label {
+            position: absolute;
+            left: 5px;
+            top: -10px;
+            background: var(--primary);
+            color: var(--text-white);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+    }
+
+    .adm-dt-guide-v {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 0.5px;
+        background: var(--primary);
+        z-index: 100;
+        pointer-events: none;
+    }
+
+    /* ── Header de fechas ─────────────────────────────────── */
+    .adm-dt-header {
+        display: flex;
+        gap: 1px;
+        background-color: var(--gray-medium);
+        position: sticky;
+        top: 0;
+        z-index: 20; /* Subido para estar por encima de los bloques */
+        border-bottom: 1px solid var(--gray-medium);
+
+        .adm-dt-col-time-header {
+            width: 60px; /* Un poco más ancho para las horas */
+            min-width: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            background-color: var(--color-bg);
+        }
+
+        .adm-dt-col-date {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: .4rem .2rem;
+            color: var(--primary);
+            background-color: var(--color-bg);
+            transition: all 0.2s ease;
+            
+            &.view-month {
+                flex-direction: column;
+                line-height: 1;
+            }
+            
+            .adm-dt-date-weekday {
+                font-size: 1.3rem;
+                font-family: var(--font-tertiary);
+                opacity: 0.8;
+                font-weight: 600;
+                text-transform: capitalize;
+            }
+
+            .adm-dt-date-num {
+                font-weight: 700;
+                font-size: 1.2rem;
+
+                &.is-selected {
+                    background: var(--primary);
+                    color: var(--text-white);
+                    border-radius: 50%;
+                    width: 24px;
+                    height: 24px;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+        }
+    }
+
+    /* ── Cuerpo (columna horas + columnas de días) ─────────── */
+    .adm-dt-body {
+        display: flex;
+        gap: 1px;
+        flex: 1; /* Ocupa todo el espacio restante verticalmente */
+        position: relative;
+        background-color: var(--gray-medium);
+        overflow: hidden; /* Sin scroll interno */
+
+        /* Columna de horarios */
+        .adm-dt-col-time {
+            width: 60px;
+            min-width: 60px;
+            display: flex;
+            flex-direction: column;
+            z-index: 5;
+            background-color: var(--color-bg);
+
+            .adm-dt-time-cell {
+                flex: 1; /* Crecen proporcionalmente para llenar el alto */
+                position: relative;
+                /* border-bottom: 1px solid var(--gray-medium); */
+
+                span {
+                    font-size: 1rem;
+                    font-weight: 500;
+                    position: absolute;
+                    top: -8px;
+                    width: 100%;
+                    text-align: center;
+                    z-index: 2;
+                    color: var(--text-light);
+                    pointer-events: none;
+                }
+            }
+        }
+
+        /* Columnas de días */
+        .adm-dt-col-day {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-color: var(--color-bg);
+
+            .adm-dt-row-hour {
+                flex: 1; /* Crecen proporcionalmente para llenar el alto */
+                position: relative;
+                border-bottom: 1px solid var(--gray-medium);
+                cursor: crosshair;
+
+                &:hover {
+                    background: var(--bg-item);
+                }
+            }
+
+            /* Bloque de reserva */
+            .adm-dt-booking-block {
+                position: absolute;
+                left: 2px;
+                right: 2px;
+                border-radius: 6px;
+                z-index: 50;
+                cursor: pointer;
+                padding: 6px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 2px;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                animation: slideInY 0.3s ease-out;
+                overflow: hidden;
+                border: 1.5px solid transparent;
+
+                &.is-selected {
+                    outline: 2.5px solid var(--primary);
+                    z-index: 60;
+                }
+
+                /* Estados */
+                &.state-confirmed {
+                    background: #dcfce7;
+                    border-color: #bbf7d0;
+                    color: #166534;
+                }
+
+                &.state-pending {
+                    background: #fef9c3;
+                    border-color: #fef08a;
+                    color: #854d0e;
+                }
+
+                &.state-cancelled {
+                    background: #fee2e2;
+                    border-color: #fecaca;
+                    color: #991b1b;
+                    opacity: 0.8;
+                }
+
+                &.state-hold {
+                    background: #f1f5f9;
+                    border-color: #64748b;
+                    color: #475569;
+                    border-style: dashed;
+                    opacity: 0.8;
+                }
+
+                &.payment-pending {
+                    background-image: repeating-linear-gradient(
+                        45deg,
+                        transparent,
+                        transparent 10px,
+                        rgba(255, 255, 255, 0.4) 10px,
+                        rgba(255, 255, 255, 0.4) 20px
+                    );
+                    border: 2px dashed #bbf7d0; /* Un verde punteado para diferenciar */
+                }
+
+                .payment-warning-icon {
+                    font-size: 0.9rem;
+                    margin-left: 4px;
+                    filter: saturate(1.5);
+                }
+
+                .adm-dt-block-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    width: 100%;
+                    justify-content: center;
+                }
+
+                .adm-dt-block-avatar {
+                    background: var(--primary);
+                    color: var(--text-white);
+                    border-radius: 50%;
+                    padding: 4px;
+                    width: 22px;
+                    height: 22px;
+                    flex-shrink: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .adm-dt-block-name {
+                    font-weight: 600;
+                    font-size: 1.2rem;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 100px;
+                }
+
+                .adm-dt-block-time {
+                    font-size: 1.2rem;
+                    opacity: 0.85;
+                    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+                    font-weight: 500;
+                }
+            }
+        }
+    }
+}

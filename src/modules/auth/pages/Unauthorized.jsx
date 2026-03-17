@@ -1,32 +1,68 @@
-import { AlertTriangle, ArrowLeft } from 'lucide-react';
+import { ShieldOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import '../styles/unauthorized.css';
+
+const ROLE_LABELS = {
+    system:        'System',
+    super_admin:   'Super Admin',
+    administrador: 'Administrador',
+    empleado:      'Empleado',
+    cliente:       'Cliente',
+};
+
+const getHomeRoute = (roles = [], companyIds = []) => {
+    if (roles.includes('system'))        return { path: '/dashboard',                   label: 'Ir al Dashboard' };
+    if (roles.includes('super_admin'))   return { path: '/companys',                    label: 'Ir a mis Empresas' };
+    if (roles.includes('administrador')) return { path: `/subsidiary/${companyIds[0]}`, label: 'Ir a mi Sucursal' };
+    if (roles.includes('empleado'))      return { path: `/bookings/${companyIds[0]}`,   label: 'Ir a Reservas' };
+    return { path: '/login', label: 'Ir al Login' };
+};
 
 const Unauthorized = () => {
     const navigate = useNavigate();
+    const { roles, companyIds, isAuthenticated } = useAuth();
+
+    const primaryRole = roles?.[0] || null;
+    const roleLabel = primaryRole ? ROLE_LABELS[primaryRole] : null;
+    const home = getHomeRoute(roles, companyIds);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center p-4">
-            <div className="max-w-md w-full text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-6">
-                    <AlertTriangle className="w-8 h-8 text-red-600" />
+        <div className="unauthorized_page">
+            <div className="unauthorized_card">
+                <div className="unauthorized_icon_wrap">
+                    <ShieldOff />
                 </div>
 
-                <h1 className="text-2xl font-bold text-secondary-800 mb-4">
-                    Acceso No Autorizado
-                </h1>
+                <p className="unauthorized_code">403</p>
 
-                <p className="text-secondary-600 mb-8">
-                    No tienes permisos para acceder a esta página.
-                    Contacta al administrador si crees que esto es un error.
+                <h1 className="unauthorized_title">Acceso no autorizado</h1>
+
+                <p className="unauthorized_msg">
+                    No tienes permisos para ver esta página.
                 </p>
 
-                <button
-                    onClick={() => navigate(-1)}
-                    className="btn-primary inline-flex items-center"
-                >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Volver
-                </button>
+                {roleLabel && (
+                    <span className="unauthorized_role_badge">{roleLabel}</span>
+                )}
+
+                <div className="unauthorized_actions">
+                    <button
+                        className="btn_app btn_app_back btn_app_md"
+                        onClick={() => navigate(-1)}
+                    >
+                        Volver
+                    </button>
+
+                    {isAuthenticated && (
+                        <button
+                            className="btn_app btn_app_primary btn_app_md"
+                            onClick={() => navigate(home.path)}
+                        >
+                            {home.label}
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

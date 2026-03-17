@@ -6,9 +6,10 @@ import { IoArrowForwardOutline } from "react-icons/io5";
 import { MdAdminPanelSettings } from "react-icons/md";
 import useLogin from '../hooks/useLogin';
 import Animation from '../components/Animation';
+import { InputField } from '../../../shared/components';
 
 const Login = () => {
-    const { handleSubmit, handleShowPassword, usuario, setUsuario, contrasena, setContrasena, showPassword } = useLogin();
+    const { handleSubmit, handleShowPassword, usuario, setUsuario, contrasena, setContrasena, showPassword, isSubmitting } = useLogin();
 
     return (
         <div className="login_page">
@@ -24,38 +25,32 @@ const Login = () => {
                     <h3>Iniciar Sesión</h3>
 
                     <form onSubmit={handleSubmit} className="login-form">
-                        <div className="form_group">
-                            <label htmlFor="usuario">Usuario</label>
-                            <input
-                                type="text"
-                                id="usuario"
-                                value={usuario}
-                                onChange={(e) => setUsuario(e.target.value)}
-                                placeholder=""
-                            />
-                            <FaRegUser className='icon' />
-                        </div>
-                        <div className="form_group">
-                            <label htmlFor="contrasena">Contraseña</label>
-                            <input
-                                type={showPassword ? 'text' : 'password'}
-                                id="contrasena"
-                                value={contrasena}
-                                onChange={(e) => setContrasena(e.target.value)}
-                                placeholder=""
-                            />
-                            {showPassword ?
-                                <FiEyeOff className='icon icon_password' onClick={handleShowPassword} /> :
-                                <IoEyeOutline className='icon icon_password' onClick={handleShowPassword} />
-                            }
-                        </div>
+                        <InputField
+                            name="usuario"
+                            label="Usuario"
+                            value={usuario}
+                            onChange={(e) => setUsuario(e.target.value)}
+                            placeholder=""
+                            variant='variant2'
+                            icon={FaRegUser}
+                        />
+                        <InputField
+                            type='password'
+                            name="contrasena"
+                            label="Contraseña"
+                            value={contrasena}
+                            onChange={(e) => setContrasena(e.target.value)}
+                            placeholder=""
+                            variant='variant2'
+                            icon={showPassword ? FiEyeOff : IoEyeOutline}
+                        />
 
                         <div className="forgot-password">
                             <a href="#" className="forgot-link">¿Olvidaste la contraseña?</a>
                         </div>
 
-                        <button type="submit" className="login-button">
-                            Iniciar Sesión 
+                        <button type="submit" className="login-button" disabled={isSubmitting}>
+                            Iniciar Sesión
                             <IoArrowForwardOutline />
                         </button>
                     </form>
